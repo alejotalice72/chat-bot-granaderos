@@ -111,6 +111,10 @@ setInterval(() => {
 // ---------------------------------------------------------------------------
 // API DE WHATSAPP
 // ---------------------------------------------------------------------------
+// Argentina: Meta envía 549XXXXXXXXXX pero para responder requiere 54XXXXXXXXXX
+function toRecipient(n) {
+  return n.startsWith('549') ? '54' + n.slice(3) : n;
+}
 async function callApi(payload) {
   const url = `https://graph.facebook.com/${GRAPH_VERSION}/${PHONE_NUMBER_ID}/messages`;
   const r = await fetch(url, {
