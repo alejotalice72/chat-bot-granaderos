@@ -26,7 +26,7 @@ const SESSION_MS = Number(SESSION_MINUTES) * 60 * 1000;
 // ---------------------------------------------------------------------------
 const FLOW = {
   sucursal: {
-    body: '¡Hola! 👋 Bienvenido/a.\n¿Con qué sector querés comunicarte?\n\n• Librería Colegio Nadino\n• Librería',
+    body: 'LIBRERIA J FOSCHI ✏️ \n¿Con qué sector querés comunicarte?\n\n• Librería Colegio Nadino\n• Librería',
     label: 'Sector',
     options: () => [
       { id: 'colegio', title: 'Colegio Nadino', label: 'Librería Colegio Nadino' },
