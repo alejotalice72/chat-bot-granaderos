@@ -113,8 +113,9 @@ setInterval(() => {
 // ---------------------------------------------------------------------------
 // Argentina: Meta envía 549XXXXXXXXXX pero para responder requiere 54XXXXXXXXXX
 function toRecipient(n) {
-  return n.startsWith('549') ? '54' + n.slice(3) : n;
+  return n && n.startsWith('549') ? '54' + n.slice(3) : n;
 }
+
 async function callApi(payload) {
   const url = `https://graph.facebook.com/${GRAPH_VERSION}/${PHONE_NUMBER_ID}/messages`;
   const r = await fetch(url, {
@@ -237,6 +238,32 @@ function validSignature(req) {
 
 app.get('/', (_req, res) => res.send('ok'));
 
+// Política de privacidad (requerida por Meta para publicar la app)
+const PRIVACY_HTML = `<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Política de privacidad - Librería J. Foschi</title>
+<style>body{font-family:system-ui,Arial,sans-serif;max-width:760px;margin:40px auto;padding:0 20px;line-height:1.6;color:#222}h1{font-size:1.6em}h2{font-size:1.15em;margin-top:1.6em}</style>
+</head><body>
+<h1>Política de privacidad</h1>
+<p><strong>Librería J. Foschi</strong> (incluye Librería Colegio Nadino) utiliza un asistente automático de WhatsApp para recibir consultas y pedidos de impresión de sus clientes.</p>
+<h2>Datos que recopilamos</h2>
+<p>Cuando nos escribís por WhatsApp recibimos tu número de teléfono, tu nombre de perfil y el contenido de los mensajes y opciones que elegís (por ejemplo: tipo de impresión, tamaño, papel y cantidad).</p>
+<h2>Para qué los usamos</h2>
+<p>Usamos esos datos únicamente para responder tu consulta, tomar y completar tu pedido y comunicarnos con vos sobre él. No los vendemos, no los cedemos a terceros y no los usamos con fines publicitarios.</p>
+<h2>Servicios de terceros</h2>
+<p>Los mensajes se transmiten a través de WhatsApp Business Platform, un servicio de Meta Platforms, Inc., sujeto a sus propias políticas de privacidad.</p>
+<h2>Conservación</h2>
+<p>La información del pedido se conserva solo durante el tiempo necesario para atenderlo.</p>
+<h2>Tus derechos</h2>
+<p>De acuerdo con la Ley 25.326 de Protección de Datos Personales, podés solicitar el acceso, la rectificación o la eliminación de tus datos escribiendo a <a href="mailto:foschigranaderos@gmail.com">foschigranaderos@gmail.com</a>.</p>
+<h2>Contacto</h2>
+<p>Librería J. Foschi — <a href="mailto:foschigranaderos@gmail.com">foschigranaderos@gmail.com</a></p>
+<p><em>Última actualización: septiembre de 2026.</em></p>
+</body></html>`;
+
+app.get('/privacidad', (_req, res) => res.type('html').send(PRIVACY_HTML));
+
 // Verificación del webhook (Meta)
 app.get('/webhook', (req, res) => {
   if (req.query['hub.mode'] === 'subscribe' && req.query['hub.verify_token'] === VERIFY_TOKEN) {
@@ -247,7 +274,11 @@ app.get('/webhook', (req, res) => {
 
 // Mensajes entrantes
 app.post('/webhook', (req, res) => {
-  if (APP_SECRET && !validSignature(req)) return res.sendStatus(401);
+  console.log('Webhook recibido:', JSON.stringify(req.body).slice(0, 500));
+  if (APP_SECRET && !validSignature(req)) {
+    console.error('Firma inválida: revisá APP_SECRET');
+    return res.sendStatus(401);
+  }
   res.sendStatus(200);
 
   for (const entry of req.body?.entry || []) {
