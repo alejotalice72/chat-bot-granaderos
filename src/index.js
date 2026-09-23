@@ -116,7 +116,7 @@ async function callApi(payload) {
   const r = await fetch(url, {
     method: 'POST',
     headers: { Authorization: `Bearer ${WHATSAPP_TOKEN}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ messaging_product: 'whatsapp', ...payload }),
+    body: JSON.stringify({ messaging_product: 'whatsapp', ...payload, to: toRecipient(payload.to) }),
   });
   if (!r.ok) console.error('Error API WhatsApp', r.status, await r.text());
 }
